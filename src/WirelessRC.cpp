@@ -104,3 +104,93 @@ bool WirelessRCController::update() {
   _driver.waitPacketSent();
   return true;
 }
+
+
+// ══════════════════════════════════════════════
+//  WirelessRCControllerOLED
+//  Only compiled when WIRELESSRC_OLED is defined
+// ══════════════════════════════════════════════
+#ifdef WIRELESSRC_OLED
+
+WirelessRCControllerOLED::WirelessRCControllerOLED(uint8_t i2cAddr,
+                                                   uint8_t joystickX,
+                                                   uint8_t joystickY,
+                                                   uint8_t buttonPin,
+                                                   uint16_t txDelay)
+  : WirelessRCController(joystickX, joystickY, buttonPin, txDelay),
+    _display(WIRELESSRC_OLED_WIDTH, WIRELESSRC_OLED_HEIGHT,
+             &Wire, WIRELESSRC_OLED_RESET),
+    _i2cAddr(i2cAddr)
+{}
+
+bool WirelessRCControllerOLED::begin() {
+  if (!_display.begin(SSD1306_SWITCHCAPVCC, _i2cAddr)) return false;
+  _startupAnimation();
+  return WirelessRCController::begin();
+}
+
+bool WirelessRCControllerOLED::update() {
+  bool sent = WirelessRCController::update();
+
+  if (sent) {
+    _lastSentMs = millis();
+    // Toggle auto mode on button press
+    if (lastButton() == LOW) {
+      _autoMode = !_autoMode;
+    }
+  }
+
+  _updateDisplay();
+  return sent;
+}
+
+// ── private helpers ───────────────────────────
+
+void WirelessRCControllerOLED::_updateDisplay() {
+  bool connected = (millis() - _lastSentMs) < 1000UL;
+
+  _display.clearDisplay();
+  _display.setTextSize(1);
+  _display.setTextColor(SSD1306_WHITE);
+
+  // Row 1: mode + connection
+  _display.setCursor(0, 0);
+  _display.print(_autoMode ? "MODE: AUTO  " : "MODE: MANUAL");
+  _display.print(connected ? " [OK]" : " [--]");
+
+  // Row 2: joystick values
+  _display.setCursor(0, 12);
+  _display.print("X:");
+  _display.print(lastX());
+  _display.print("  Y:");
+  _display.print(lastY());
+
+  // Row 3: button state
+  _display.setCursor(0, 22);
+  _display.print("BTN: ");
+  _display.print(lastButton() == LOW ? "PRESSED" : "released");
+
+  _display.display();
+}
+
+void WirelessRCControllerOLED::_startupAnimation() {
+  _display.clearDisplay();
+  _display.setTextSize(1);
+  _display.setTextColor(SSD1306_WHITE);
+
+  // Type out "WirelessRC" letter by letter
+  String title = "WirelessRC";
+  for (int i = 0; i <= (int)title.length(); i++) {
+    _display.clearDisplay();
+    _display.setCursor(24, 4);
+    _display.print(title.substring(0, i));
+    _display.setCursor(16, 18);
+    _display.print("Controller Ready");
+    _display.display();
+    delay(80);
+  }
+  delay(800);
+}
+
+#endif // WIRELESSRC_OLED
+

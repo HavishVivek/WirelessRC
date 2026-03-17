@@ -6,6 +6,17 @@
 #include <SPI.h>
 
 // ─────────────────────────────────────────────
+//  Optional OLED support
+//  To enable: #define WIRELESSRC_OLED before including WirelessRC.h
+//  Requires: Adafruit SSD1306 + Adafruit GFX libraries
+// ─────────────────────────────────────────────
+#ifdef WIRELESSRC_OLED
+  #include <Wire.h>
+  #include <Adafruit_GFX.h>
+  #include <Adafruit_SSD1306.h>
+#endif
+
+// ─────────────────────────────────────────────
 //  WirelessRCCar  –  Receiver / Car side
 // ─────────────────────────────────────────────
 class WirelessRCCar {
@@ -100,5 +111,55 @@ private:
   int  _lastY   = 512;
   bool _lastBtn = true;
 };
+
+// ─────────────────────────────────────────────
+//  WirelessRCControllerOLED  –  Controller with SSD1306 display
+//  Only compiled when #define WIRELESSRC_OLED is set
+// ─────────────────────────────────────────────
+#ifdef WIRELESSRC_OLED
+
+#define WIRELESSRC_OLED_WIDTH  128
+#define WIRELESSRC_OLED_HEIGHT  32
+#define WIRELESSRC_OLED_RESET   -1
+
+class WirelessRCControllerOLED : public WirelessRCController {
+public:
+  /**
+   * @param i2cAddr   I2C address of OLED (default 0x3C)
+   * @param joystickX Analog pin for X axis  (default A1)
+   * @param joystickY Analog pin for Y axis  (default A0)
+   * @param buttonPin Digital pin for button (default 2)
+   * @param txDelay   Ms between transmissions (default 100)
+   */
+  WirelessRCControllerOLED(uint8_t i2cAddr  = 0x3C,
+                            uint8_t joystickX = A1,
+                            uint8_t joystickY = A0,
+                            uint8_t buttonPin = 2,
+                            uint16_t txDelay  = 100);
+
+  /** Call once in setup(). Initialises OLED + RF driver. */
+  bool begin();
+
+  /**
+   * Call every loop(). Transmits joystick packet and refreshes OLED.
+   * Returns true when a packet was sent this cycle.
+   */
+  bool update();
+
+  /** Toggle auto mode on/off */
+  void setAutoMode(bool enabled) { _autoMode = enabled; }
+  bool autoMode() const          { return _autoMode; }
+
+private:
+  Adafruit_SSD1306 _display;
+  uint8_t          _i2cAddr;
+  unsigned long    _lastSentMs = 0;
+  bool             _autoMode   = false;
+
+  void _updateDisplay();
+  void _startupAnimation();
+};
+
+#endif // WIRELESSRC_OLED
 
 #endif // WirelessRC_h
