@@ -1,3 +1,4 @@
+#define WIRELESSRC_OLED
 #include "WirelessRC.h"
 
 // ══════════════════════════════════════════════

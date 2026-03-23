@@ -1,6 +1,8 @@
 #ifndef WirelessRC_h
 #define WirelessRC_h
 
+#define WIRELESSRC_OLED  // add this line
+
 #include <Arduino.h>
 #include <RH_ASK.h>
 #include <SPI.h>
