@@ -79,9 +79,12 @@ void WirelessRCCar::_handleJoystick() {
 // ══════════════════════════════════════════════
 
 WirelessRCController::WirelessRCController(uint8_t joystickX, uint8_t joystickY,
-                                           uint8_t buttonPin, uint16_t txDelay)
+                                           uint8_t buttonPin, uint16_t txDelay,
+                                           uint8_t txPin)
   : _joyX(joystickX), _joyY(joystickY),
-    _btnPin(buttonPin), _txDelay(txDelay)
+    _btnPin(buttonPin), _txDelay(txDelay),
+    _txPin(txPin),
+    _driver(2000, 11, txPin)   // speed, rxPin, txPin
 {}
 
 bool WirelessRCController::begin() {
@@ -117,8 +120,9 @@ WirelessRCControllerOLED::WirelessRCControllerOLED(uint8_t i2cAddr,
                                                    uint8_t joystickX,
                                                    uint8_t joystickY,
                                                    uint8_t buttonPin,
-                                                   uint16_t txDelay)
-  : WirelessRCController(joystickX, joystickY, buttonPin, txDelay),
+                                                   uint16_t txDelay,
+                                                   uint8_t txPin)
+  : WirelessRCController(joystickX, joystickY, buttonPin, txDelay, txPin),
     _display(WIRELESSRC_OLED_WIDTH, WIRELESSRC_OLED_HEIGHT,
              &Wire, WIRELESSRC_OLED_RESET),
     _i2cAddr(i2cAddr)
