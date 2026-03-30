@@ -135,11 +135,12 @@ public:
    * @param buttonPin Digital pin for button (default 2)
    * @param txDelay   Ms between transmissions (default 100)
    */
-  WirelessRCControllerOLED(uint8_t i2cAddr  = 0x3C,
-                            uint8_t joystickX = A1,
-                            uint8_t joystickY = A0,
-                            uint8_t buttonPin = 2,
-                            uint16_t txDelay  = 100);
+WirelessRCControllerOLED(uint8_t i2cAddr   = 0x3C,
+                          uint8_t joystickX = A1,
+                          uint8_t joystickY = A0,
+                          uint8_t buttonPin = 2,
+                          uint16_t txDelay  = 100,
+                          uint8_t txPin     = 12);
 
   /** Call once in setup(). Initialises OLED + RF driver. */
   bool begin();
