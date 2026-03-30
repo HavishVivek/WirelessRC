@@ -86,8 +86,9 @@ public:
    * @param buttonPin  Digital pin for button (default 2, uses INPUT_PULLUP)
    * @param txDelay    Milliseconds between transmissions (default 100)
    */
-  WirelessRCController(uint8_t joystickX = A1, uint8_t joystickY = A0,
-                       uint8_t buttonPin = 2,  uint16_t txDelay = 100);
+WirelessRCController(uint8_t joystickX = A1, uint8_t joystickY = A0,
+                     uint8_t buttonPin = 2,  uint16_t txDelay = 100,
+                     uint8_t txPin = 12);
 
   /** Call once in setup(). Returns false if RF driver fails to init. */
   bool begin();
@@ -108,6 +109,7 @@ private:
   uint8_t  _joyX, _joyY, _btnPin;
   uint16_t _txDelay;
   uint32_t _lastSend = 0;
+  uint8_t  _txPin; 
 
   int  _lastX   = 512;
   int  _lastY   = 512;
