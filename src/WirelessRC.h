@@ -104,6 +104,11 @@ WirelessRCController(uint8_t joystickX = A1, uint8_t joystickY = A0,
   int  lastY()      const { return _lastY; }
   bool lastButton() const { return _lastBtn; }
 
+    void sendRaw(const uint8_t* buf, uint8_t len) {
+    _driver.send(buf, len);
+    _driver.waitPacketSent();
+  }
+
 private:
   RH_ASK   _driver;
   uint8_t  _joyX, _joyY, _btnPin;
